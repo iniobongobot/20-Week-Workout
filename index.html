@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>20-Week Advanced Hypertrophy Tracker</title>
+    <style>
+        :root { --bg: #0a0c10; --card: #161b22; --accent: #238636; --text: #c9d1d9; --timer: #58a6ff; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 10px; margin: 0; display: flex; justify-content: center; }
+        .wrapper { width: 100%; max-width: 500px; padding-bottom: 50px; }
+        
+        /* Header & Progress */
+        .header { background: var(--card); padding: 20px; border-radius: 12px; border-left: 6px solid var(--accent); margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .date-display { font-size: 1.2rem; font-weight: 800; color: #fff; text-transform: uppercase; }
+        .phase-display { font-size: 1rem; color: var(--accent); font-weight: 700; margin-top: 5px; }
+        .week-display { font-size: 0.85rem; color: #8b949e; margin-top: 2px; }
+
+        /* Workout Display */
+        .focus-banner { font-size: 0.9rem; font-weight: 700; color: #000; background: var(--timer); display: inline-block; padding: 4px 12px; border-radius: 4px; margin-bottom: 15px; margin-left: 5px; }
+        .ex-card { background: var(--card); border-radius: 10px; padding: 15px; margin-bottom: 12px; border: 1px solid #30363d; position: relative; }
+        .ex-name { font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 5px; display: block; }
+        .ex-stats { color: var(--accent); font-weight: 800; font-size: 0.9rem; margin-bottom: 8px; display: block; }
+        .ex-notes { font-size: 0.85rem; color: #8b949e; line-height: 1.5; border-top: 1px solid #30363d; padding-top: 8px; margin-top: 5px; }
+
+        .rest-day { text-align: center; padding: 50px 20px; color: #8b949e; font-style: italic; }
+        .nav-ui { display: flex; justify-content: space-between; margin-top: 20px; }
+        .nav-btn { background: #21262d; color: white; border: 1px solid #363b42; padding: 12px; border-radius: 8px; width: 48%; font-weight: 600; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <div class="header">
+        <div id="ui-date" class="date-display">...</div>
+        <div id="ui-phase" class="phase-display">...</div>
+        <div id="ui-week" class="week-display">...</div>
+    </div>
+
+    <div id="workout-area"></div>
+
+    <div class="nav-ui">
+        <button class="nav-btn" onclick="adjDate(-1)">← Yesterday</button>
+        <button class="nav-btn" onclick="adjDate(1)">Tomorrow →</button>
+    </div>
+</div>
+
+<script>
+    // START DATE: JANUARY 5, 2026
+    const PROGRAM_START = new Date('2026-01-05T00:00:00');
+    let activeDate = new Date(); // Defaults to actual "Today"
+
+    // YOUR FULL CSV DATA
+    const planCSV = `Phase,Day,Muscle Group Focus,Exercise,Sets,Reps,Notes
+Phase 1 (Weeks 1-4),Monday,Lower (Quad Focus),Hanging Leg Raises,4,15-20,Start with lower abs
+Phase 1 (Weeks 1-4),Monday,Lower (Quad Focus),Abductor Machine,3,15,Warm up hips
+Phase 1 (Weeks 1-4),Monday,Lower (Quad Focus),Barbell Back Squat,4,8-10,3 min rest
+Phase 1 (Weeks 1-4),Monday,Lower (Quad Focus),Leg Press,4,12-15,Slow eccentric (3 sec down)
+Phase 1 (Weeks 1-4),Monday,Lower (Quad Focus),Leg Extensions,4,15,Hold peak contraction 1 sec
+Phase 1 (Weeks 1-4),Monday,Lower (Quad Focus),Standing Calf Raises,5,15-20,Full stretch at bottom
+Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Barbell Bench Press,4,8-10,Touch chest and explode up
+Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Bent Over Barbell Rows,4,8-10,Pull to lower stomach
+Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Overhead Press (Dumbbell),3,10-12,Full range of motion
+Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Lat Pulldowns (Wide),4,12,Pull with elbows
+Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Dips,3,Failure,Add weight if over 15 reps
+Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Dumbbell Bicep Curls,3,12,No swinging
+Phase 1 (Weeks 1-4),Thursday,Lower (Hams/Deadlift),Hanging Leg Raises,4,15-20,Start with lower abs
+Phase 1 (Weeks 1-4),Thursday,Lower (Hams/Deadlift),Abductor Machine,3,15,Warm up hips
+Phase 1 (Weeks 1-4),Thursday,Lower (Hams/Deadlift),Conventional Deadlift,4,5-8,Reset breath every rep
+Phase 1 (Weeks 1-4),Thursday,Lower (Hams/Deadlift),Romanian Deadlift,4,10-12,Feel the stretch in hams
+Phase 1 (Weeks 1-4),Thursday,Lower (Hams/Deadlift),Lying Leg Curls,4,12-15,Keep hips glued to pad
+Phase 1 (Weeks 1-4),Thursday,Lower (Hams/Deadlift),Barbell Hip Thrusts,4,10-12,2 sec hold at top
+Phase 1 (Weeks 1-4),Thursday,Lower (Hams/Deadlift),Seated Calf Raises,5,15-20,High volume pump
+Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Incline Dumbbell Press,4,10-12,30 degree incline
+Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Weighted Pull-ups,4,6-8,Use belt if needed
+Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Seated Cable Rows,4,12,Chest up squeeze lats
+Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Lateral Raises,5,15,Strict form only
+Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Skull Crushers,3,12,Keep elbows tucked
+Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Hammer Curls,3,12,Squeeze at the top
+Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Hanging Leg Raises,4,15-20,Lower ab focus
+Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Abductor Machine,3,15,Hip stability
+Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Barbell Back Squat,5,6-8,Increase weight 5-10lbs weekly
+Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Hack Squat,4,10-12,Deep range of motion
+Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Goblet Squat,3,15,Constant tension
+Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Leg Extensions (Drop Set),3,12-12-12,3 drops per set
+Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Calf Raise (Leg Press),5,15,Full stretch
+Phase 2 (Weeks 5-8),Tuesday,Upper (Push/Pull A),Barbell Bench Press,5,5-8,Focus on power
+Phase 2 (Weeks 5-8),Tuesday,Upper (Push/Pull A),Weighted T-Bar Rows,4,8,Heavy and strict
+Phase 2 (Weeks 5-8),Tuesday,Upper (Push/Pull A),Standing Barbell OHP,4,8,Strict press no leg drive
+Phase 2 (Weeks 5-8),Tuesday,Upper (Push/Pull A),Pull-ups,4,Failure,Vary grips each set
+Phase 2 (Weeks 5-8),Tuesday,Upper (Push/Pull A),Cable Flyes,3,15,Cross hands at finish
+Phase 2 (Weeks 5-8),Tuesday,Upper (Push/Pull A),Preacher Curls,3,10,Slow eccentric
+Phase 2 (Weeks 5-8),Thursday,Lower (Hams/Deadlift),Hanging Leg Raises,4,15-20,Lower ab focus
+Phase 2 (Weeks 5-8),Thursday,Lower (Hams/Deadlift),Abductor Machine,3,15,Hip stability
+Phase 2 (Weeks 5-8),Thursday,Lower (Hams/Deadlift),Conventional Deadlift,5,3-5,Build to a heavy set
+Phase 2 (Weeks 5-8),Thursday,Lower (Hams/Deadlift),Snatch Grip RDL,4,8-10,Extra upper back engagement
+Phase 2 (Weeks 5-8),Thursday,Lower (Hams/Deadlift),Glute Ham Raise,4,10,Or Nordic curls
+Phase 2 (Weeks 5-8),Thursday,Lower (Hams/Deadlift),Dumbbell Lunges,3,12 per leg,Long stride for glutes
+Phase 2 (Weeks 5-8),Thursday,Lower (Hams/Deadlift),Seated Calf Raises,5,12,Heavy weight
+Phase 2 (Weeks 5-8),Saturday,Upper (Push/Pull B),Incline Barbell Bench,4,8,Focus on upper chest
+Phase 2 (Weeks 5-8),Saturday,Upper (Push/Pull B),Single Arm DB Row,4,10 per arm,Deep stretch
+Phase 2 (Weeks 5-8),Saturday,Upper (Push/Pull B),Upright Rows (Cable),3,12,Wide grip
+Phase 2 (Weeks 5-8),Saturday,Upper (Push/Pull B),Lateral Raises (Leaning),4,15,Increase range of motion
+Phase 2 (Weeks 5-8),Saturday,Upper (Push/Pull B),Tricep Pushdowns,4,15,Straight bar
+Phase 2 (Weeks 5-8),Saturday,Upper (Push/Pull B),Reverse Curls,3,15,For forearm thickness
+Phase 3 (Weeks 9-12),Monday,Lower (Quad Focus),Hanging Leg Raises,4,20,Max control
+Phase 3 (Weeks 9-12),Monday,Lower (Quad Focus),Abductor Machine,4,15,Pulse at the top
+Phase 3 (Weeks 9-12),Monday,Lower (Quad Focus),Barbell Squat (Superset),4,10,Superset with Leg Ext
+Phase 3 (Weeks 9-12),Monday,Lower (Quad Focus),Leg Extensions,4,15,Max burn
+Phase 3 (Weeks 9-12),Monday,Lower (Quad Focus),Leg Press,5,20,High rep hypertrophy
+Phase 3 (Weeks 9-12),Monday,Lower (Quad Focus),Sissy Squats,3,Failure,Bodyweight focus
+Phase 3 (Weeks 9-12),Monday,Lower (Quad Focus),Standing Calf Raises,5,25,Pump focus
+Phase 3 (Weeks 9-12),Tuesday,Upper (Push/Pull A),Incline DB Bench (Superset),4,10,Superset with DB Rows
+Phase 3 (Weeks 9-12),Tuesday,Upper (Push/Pull A),Dumbbell Rows,4,10,Heavy rows
+Phase 3 (Weeks 9-12),Tuesday,Upper (Push/Pull A),Cable Chest Press,3,15,Controlled squeeze
+Phase 3 (Weeks 9-12),Tuesday,Upper (Push/Pull A),Face Pulls,4,20,Rear delt and posture
+Phase 3 (Weeks 9-12),Tuesday,Upper (Push/Pull A),Tricep OH Ext (Cable),4,12,Long head tricep focus
+Phase 3 (Weeks 9-12),Tuesday,Upper (Push/Pull A),Incline DB Curls,4,12,Deep bicep stretch
+Phase 3 (Weeks 9-12),Thursday,Lower (Hams/Deadlift),Hanging Leg Raises,4,20,Max control
+Phase 3 (Weeks 9-12),Thursday,Lower (Hams/Deadlift),Abductor Machine,4,15,Pulse at the top
+Phase 3 (Weeks 9-12),Thursday,Lower (Hams/Deadlift),Deficit Deadlifts,4,6,Increase range of motion
+Phase 3 (Weeks 9-12),Thursday,Lower (Hams/Deadlift),Leg Curls (Superset),4,12,Superset with Glute Bridges
+Phase 3 (Weeks 9-12),Thursday,Lower (Hams/Deadlift),Weighted Glute Bridges,4,15,Heavy weight
+Phase 3 (Weeks 9-12),Thursday,Lower (Hams/Deadlift),Kettlebell Swings,3,20,Explosive power
+Phase 3 (Weeks 9-12),Thursday,Lower (Hams/Deadlift),Single Leg Calf Raises,5,15,No rest between legs
+Phase 3 (Weeks 9-12),Saturday,Upper (Push/Pull B),Weighted Dips,4,10,Lean forward for chest
+Phase 3 (Weeks 9-12),Saturday,Upper (Push/Pull B),Lat Pulldowns (Close Grip),4,10,Lower lat focus
+Phase 3 (Weeks 9-12),Saturday,Upper (Push/Pull B),Arnold Press,3,12,Shoulder rotation
+Phase 3 (Weeks 9-12),Saturday,Upper (Push/Pull B),Lateral Raises (Cable),4,15,Constant tension
+Phase 3 (Weeks 9-12),Saturday,Upper (Push/Pull B),Rope Pushdowns,4,20,Flare out at bottom
+Phase 3 (Weeks 9-12),Saturday,Upper (Push/Pull B),Spider Curls,3,12,Peak contraction
+Phase 4 (Weeks 13-16),Monday,Lower (Quad Focus),Hanging Leg Raises,4,15,Strict form
+Phase 4 (Weeks 13-16),Monday,Lower (Quad Focus),Abductor Machine,3,12,Heavy tension
+Phase 4 (Weeks 13-16),Monday,Lower (Quad Focus),Barbell Back Squat,3,3-5,Heavy strength focus
+Phase 4 (Weeks 13-16),Monday,Lower (Quad Focus),Leg Press (Heavy),4,8-10,Load up plates
+Phase 4 (Weeks 13-16),Monday,Lower (Quad Focus),Hack Squat,3,12,Paused at bottom
+Phase 4 (Weeks 13-16),Tuesday,Upper (Push/Pull A),Flat Bench Press,3,3-5,Strength focus
+Phase 4 (Weeks 13-16),Tuesday,Upper (Push/Pull A),Pendlay Rows,4,6,Explosive pull from floor
+Phase 4 (Weeks 13-16),Tuesday,Upper (Push/Pull A),Weighted Pull-ups,4,5,Heavy weight
+Phase 4 (Weeks 13-16),Tuesday,Upper (Push/Pull A),Seated DB Shoulder Press,3,8,Heavy dumbbells
+Phase 4 (Weeks 13-16),Thursday,Lower (Hams/Deadlift),Hanging Leg Raises,4,15,Strict form
+Phase 4 (Weeks 13-16),Thursday,Lower (Hams/Deadlift),Abductor Machine,3,12,Heavy tension
+Phase 4 (Weeks 13-16),Thursday,Lower (Hams/Deadlift),Deadlift (Conventional),3,3,Heavy triples
+Phase 4 (Weeks 13-16),Thursday,Lower (Hams/Deadlift),RDL (Heavy),3,6-8,Maintain neutral spine
+Phase 4 (Weeks 13-16),Thursday,Lower (Hams/Deadlift),Leg Curls,4,10,Heavy stack
+Phase 4 (Weeks 13-16),Thursday,Lower (Hams/Deadlift),Barbell Hip Thrust,3,8,Heavy load
+Phase 4 (Weeks 13-16),Saturday,Upper (Push/Pull B),Incline Barbell Bench,3,5,Strength focus
+Phase 4 (Weeks 13-16),Saturday,Upper (Push/Pull B),T-Bar Rows,4,8,Chest supported
+Phase 4 (Weeks 13-16),Saturday,Upper (Push/Pull B),Weighted Dips,3,8,Heavy weight
+Phase 4 (Weeks 13-16),Saturday,Upper (Push/Pull B),Barbell Curls,4,8,Strict form
+Phase 5 (Weeks 17-20),Monday,Lower (Hypertrophy Peak),Hanging Leg Raises,4,AMRAP,Max intensity
+Phase 5 (Weeks 17-20),Monday,Lower (Hypertrophy Peak),Abductor Machine,3,20,Constant tension
+Phase 5 (Weeks 17-20),Monday,Lower (Hypertrophy Peak),Squats (Rest-Pause),3,10+3+3,15 sec rest
+Phase 5 (Weeks 17-20),Monday,Lower (Hypertrophy Peak),Leg Press (100 Reps),1,100,Mini-sets to 100
+Phase 5 (Weeks 17-20),Monday,Lower (Hypertrophy Peak),Walking Lunges,4,20 steps,Finisher
+Phase 5 (Weeks 17-20),Tuesday,Upper (Hypertrophy Peak),Bench Press (Rest-Pause),3,10+3+3,15 sec rest
+Phase 5 (Weeks 17-20),Tuesday,Upper (Hypertrophy Peak),Lat Pulldowns (Drop Set),4,10-10-10,Drops per set
+Phase 5 (Weeks 17-20),Tuesday,Upper (Hypertrophy Peak),Lateral Raises (100 Reps),1,100,Light weight max pump
+Phase 5 (Weeks 17-20),Thursday,Lower (Hypertrophy Peak),Hanging Leg Raises,4,AMRAP,Max intensity
+Phase 5 (Weeks 17-20),Thursday,Lower (Hypertrophy Peak),Abductor Machine,3,20,Constant tension
+Phase 5 (Weeks 17-20),Thursday,Lower (Hypertrophy Peak),Deadlift (AMRAP),1,Failure,80% 1RM
+Phase 5 (Weeks 17-20),Thursday,Lower (Hypertrophy Peak),Hamstring Curls (Slow),4,15,5 sec eccentric
+Phase 5 (Weeks 17-20),Thursday,Lower (Hypertrophy Peak),Kettlebell Swings,5,20,Cardio demand
+Phase 5 (Weeks 17-20),Saturday,Upper (Hypertrophy Peak),Pull-ups (AMRAP),3,Failure,Max reps
+Phase 5 (Weeks 17-20),Saturday,Upper (Hypertrophy Peak),Push-ups (AMRAP),3,Failure,Final pump
+Phase 5 (Weeks 17-20),Saturday,Upper (Hypertrophy Peak),Bicep/Tricep Giant Set,4,15,4 exercises no rest`;
+
+    let workoutDB = [];
+
+    function init() {
+        const rows = planCSV.split('\n').slice(1);
+        workoutDB = rows.map(r => {
+            const c = r.split(',');
+            return { phase: c[0], day: c[1], focus: c[2], ex: c[3], sets: c[4], reps: c[5], note: c[6] };
+        });
+        updateView();
+    }
+
+    function updateView() {
+        const diffMs = activeDate - PROGRAM_START;
+        const diffDays = Math.floor(diffMs / 86400000);
+        const currentWeek = Math.floor(diffDays / 7) + 1;
+        const phaseNum = Math.ceil(currentWeek / 4);
+        const dayStr = activeDate.toLocaleDateString('en-US', { weekday: 'long' });
+
+        // MOVE THIS LINE ABOVE THE RANGE CHECK:
+        document.getElementById('ui-date').innerText = activeDate.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+        
+        if (currentWeek < 1 || currentWeek > 20) {
+            document.getElementById('ui-phase').innerText = "Program Start: Jan 5, 2026";
+            document.getElementById('ui-week').innerText = "Status: Pre-Program / Finished";
+            document.getElementById('workout-area').innerHTML = `<div class="rest-day">Currently viewing a date outside the 20-week program. <br><br> Use the "Tomorrow" button to skip to Jan 5.</div>`;
+            return;
+        }
+
+        document.getElementById('ui-phase').innerText = `Phase ${phaseNum}`;
+        document.getElementById('ui-week').innerText = `Week ${currentWeek} of 20`;
+
+        // Filter for specific Phase String (matches CSV e.g. "Phase 1 (Weeks 1-4)")
+        const currentPhaseStr = `Phase ${phaseNum}`;
+        const todaysExercises = workoutDB.filter(row => row.phase.startsWith(currentPhaseStr) && row.day === activeDate.toLocaleDateString('en-US', { weekday: 'long' }));
+
+        const area = document.getElementById('workout-area');
+        if (todaysExercises.length > 0) {
+            let html = `<div class="focus-banner">${todaysExercises[0].focus}</div>`;
+            todaysExercises.forEach(ex => {
+                html += `
+                <div class="ex-card">
+                    <span class="ex-name">${ex.ex}</span>
+                    <span class="ex-stats">${ex.sets} SETS × ${ex.reps} REPS</span>
+                    <div class="ex-notes">${ex.note}</div>
+                </div>`;
+            });
+            area.innerHTML = html;
+        } else {
+            area.innerHTML = `<div class="rest-day">Rest Day. Hydrate, eat, and prioritize sleep for growth.</div>`;
+        }
+    }
+
+    function adjDate(n) {
+        activeDate.setDate(activeDate.getDate() + n);
+        updateView();
+    }
+
+
+
+
+    init();
+</script>
+
+</body>
+</html>
+
