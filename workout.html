@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Workout CSV Editor</title>
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 2rem; background: #f4f4f9; }
+        .header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #333; color: white; text-transform: uppercase; font-size: 0.85rem; }
+        input { width: 100%; border: 1px solid transparent; padding: 4px; border-radius: 4px; }
+        input:focus { outline: none; border-color: #007bff; background: #f0f7ff; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+        button:hover { background: #0056b3; }
+        #status { font-size: 0.9rem; color: #666; }
+    </style>
+</head>
+<body>
+
+<div class="header-actions">
+    <h1>Workout Schedule</h1>
+    <div>
+        <span id="status"></span>
+        <button onclick="saveCSV()">Save Changes</button>
+    </div>
+</div>
+
+<table id="editorTable">
+    <thead id="tableHeader"></thead>
+    <tbody id="tableBody"></tbody>
+</table>
+
+<script>
+    const CSV_FILE = 'workoutplan.csv';
+    const SAVE_URL = 'save_csv.php';
+
+    // Load CSV on Page Load
+    async function loadCSV() {
+        try {
+            const response = await fetch(CSV_FILE + '?v=' + Date.now()); // Prevent caching
+            const text = await response.text();
+            processData(text);
+        } catch (err) {
+            document.getElementById('status').innerText = "Error loading CSV.";
+        }
+    }
+
+    function processData(csvText) {
+        const lines = csvText.split('\n').filter(l => l.trim());
+        const headerRow = document.getElementById('tableHeader');
+        const body = document.getElementById('tableBody');
+        
+        body.innerHTML = '';
+        headerRow.innerHTML = '';
+
+        lines.forEach((line, index) => {
+            // Regex to handle commas inside quotes
+            const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            const tr = document.createElement('tr');
+
+            cols.forEach(col => {
+                const cell = document.createElement(index === 0 ? 'th' : 'td');
+                const val = col.replace(/^"|"$/g, '').trim();
+                
+                if (index === 0) {
+                    cell.textContent = val;
+                } else {
+                    const input = document.createElement('input');
+                    input.value = val;
+                    cell.appendChild(input);
+                }
+                tr.appendChild(cell);
+            });
+            if (index === 0) headerRow.appendChild(tr);
+            else body.appendChild(tr);
+        });
+    }
+
+    async function saveCSV() {
+        const status = document.getElementById('status');
+        status.innerText = "Saving...";
+
+        const rows = [];
+        // Grab Headers
+        const headers = Array.from(document.querySelectorAll('th')).map(th => th.textContent);
+        rows.push(headers.join(','));
+
+        // Grab Data
+        const tableRows = document.querySelectorAll('#tableBody tr');
+        tableRows.forEach(tr => {
+            const rowData = Array.from(tr.querySelectorAll('input')).map(i => {
+                // Wrap in quotes if contains comma
+                return i.value.includes(',') ? `"${i.value}"` : i.value;
+            });
+            rows.push(rowData.join(','));
+        });
+
+        const csvContent = rows.join('\n');
+
+        try {
+            const response = await fetch(SAVE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'csv_data=' + encodeURIComponent(csvContent)
+            });
+            
+            if (response.ok) {
+                status.innerText = "✅ Saved Successfully!";
+                setTimeout(() => status.innerText = "", 3000);
+            } else {
+                status.innerText = "❌ Server Error.";
+            }
+        } catch (err) {
+            status.innerText = "❌ Failed to connect to server.";
+        }
+    }
+
+    loadCSV();
+</script>
+
+</body>
+</html>
