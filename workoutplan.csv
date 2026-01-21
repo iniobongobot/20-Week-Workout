@@ -5,8 +5,8 @@ Phase 1 (Weeks 1-4),Monday,Lower (Quad Focus),Barbell Back Squat,4,8-10,3 min re
 Phase 1 (Weeks 1-4),Monday,Lower (Quad Focus),Leg Press,4,12-15,Slow eccentric (3 sec down)
 Phase 1 (Weeks 1-4),Monday,Lower (Quad Focus),Leg Extensions,4,15,Hold peak contraction 1 sec
 Phase 1 (Weeks 1-4),Monday,Lower (Quad Focus),Standing Calf Raises,5,15-20,Full stretch at bottom
-Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Barbell Bench Press,4,8-10,Touch chest and explode up
-Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Bent Over Barbell Rows,4,8-10,Pull to lower stomach
+Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Bench Press,4,8-10,Touch chest and explode up
+Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Back Rows,4,8-10,Pull to lower stomach
 Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Overhead Press (Dumbbell),3,10-12,Full range of motion
 Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Lat Pulldowns (Wide),4,12,Pull with elbows
 Phase 1 (Weeks 1-4),Tuesday,Upper (Push/Pull A),Dips,3,Failure,Add weight if over 15 reps
@@ -22,7 +22,7 @@ Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Incline Dumbbell Press,4,10-12,
 Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Weighted Pull-ups,4,6-8,Use belt if needed
 Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Seated Cable Rows,4,12,Chest up squeeze lats
 Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Lateral Raises,5,15,Strict form only
-Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Skull Crushers,3,12,Keep elbows tucked
+Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Tricep Extensions,3,12,Keep elbows tucked
 Phase 1 (Weeks 1-4),Saturday,Upper (Push/Pull B),Hammer Curls,3,12,Squeeze at the top
 Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Hanging Leg Raises,4,15-20,Lower ab focus
 Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Abductor Machine,3,15,Hip stability
@@ -31,7 +31,7 @@ Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Hack Squat,4,10-12,Deep range of m
 Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Goblet Squat,3,15,Constant tension
 Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Leg Extensions (Drop Set),3,12-12-12,3 drops per set
 Phase 2 (Weeks 5-8),Monday,Lower (Quad Focus),Calf Raise (Leg Press),5,15,Full stretch
-Phase 2 (Weeks 5-8),Tuesday,Upper (Push/Pull A),Barbell Bench Press,5,5-8,Focus on power
+Phase 2 (Weeks 5-8),Tuesday,Upper (Push/Pull A),Bench Press,5,5-8,Focus on power
 Phase 2 (Weeks 5-8),Tuesday,Upper (Push/Pull A),Weighted T-Bar Rows,4,8,Heavy and strict
 Phase 2 (Weeks 5-8),Tuesday,Upper (Push/Pull A),Standing Barbell OHP,4,8,Strict press no leg drive
 Phase 2 (Weeks 5-8),Tuesday,Upper (Push/Pull A),Pull-ups,4,Failure,Vary grips each set
@@ -44,7 +44,7 @@ Phase 2 (Weeks 5-8),Thursday,Lower (Hams/Deadlift),Snatch Grip RDL,4,8-10,Extra 
 Phase 2 (Weeks 5-8),Thursday,Lower (Hams/Deadlift),Glute Ham Raise,4,10,Or Nordic curls
 Phase 2 (Weeks 5-8),Thursday,Lower (Hams/Deadlift),Dumbbell Lunges,3,12 per leg,Long stride for glutes
 Phase 2 (Weeks 5-8),Thursday,Lower (Hams/Deadlift),Seated Calf Raises,5,12,Heavy weight
-Phase 2 (Weeks 5-8),Saturday,Upper (Push/Pull B),Incline Barbell Bench,4,8,Focus on upper chest
+Phase 2 (Weeks 5-8),Saturday,Upper (Push/Pull B),Incline Bench,4,8,Focus on upper chest
 Phase 2 (Weeks 5-8),Saturday,Upper (Push/Pull B),Single Arm DB Row,4,10 per arm,Deep stretch
 Phase 2 (Weeks 5-8),Saturday,Upper (Push/Pull B),Upright Rows (Cable),3,12,Wide grip
 Phase 2 (Weeks 5-8),Saturday,Upper (Push/Pull B),Lateral Raises (Leaning),4,15,Increase range of motion
@@ -91,7 +91,7 @@ Phase 4 (Weeks 13-16),Thursday,Lower (Hams/Deadlift),Deadlift (Conventional),3,3
 Phase 4 (Weeks 13-16),Thursday,Lower (Hams/Deadlift),RDL (Heavy),3,6-8,Maintain neutral spine
 Phase 4 (Weeks 13-16),Thursday,Lower (Hams/Deadlift),Leg Curls,4,10,Heavy stack
 Phase 4 (Weeks 13-16),Thursday,Lower (Hams/Deadlift),Barbell Hip Thrust,3,8,Heavy load
-Phase 4 (Weeks 13-16),Saturday,Upper (Push/Pull B),Incline Barbell Bench,3,5,Strength focus
+Phase 4 (Weeks 13-16),Saturday,Upper (Push/Pull B),Incline Bench,3,5,Strength focus
 Phase 4 (Weeks 13-16),Saturday,Upper (Push/Pull B),T-Bar Rows,4,8,Chest supported
 Phase 4 (Weeks 13-16),Saturday,Upper (Push/Pull B),Weighted Dips,3,8,Heavy weight
 Phase 4 (Weeks 13-16),Saturday,Upper (Push/Pull B),Barbell Curls,4,8,Strict form
@@ -111,3 +111,4 @@ Phase 5 (Weeks 17-20),Thursday,Lower (Hypertrophy Peak),Kettlebell Swings,5,20,C
 Phase 5 (Weeks 17-20),Saturday,Upper (Hypertrophy Peak),Pull-ups (AMRAP),3,Failure,Max reps
 Phase 5 (Weeks 17-20),Saturday,Upper (Hypertrophy Peak),Push-ups (AMRAP),3,Failure,Final pump
 Phase 5 (Weeks 17-20),Saturday,Upper (Hypertrophy Peak),Bicep/Tricep Giant Set,4,15,4 exercises no rest
+
